@@ -30,7 +30,8 @@ export default function Home() {
   // Create shared link mutation
   const createShareMutation = useMutation({
     mutationFn: async (data: { name: string; customMessage?: string; photoIds: string[] }) => {
-      return apiRequest('/api/shared-links', 'POST', data);
+      const response = await apiRequest('POST', '/api/shared-links', data);
+      return response.json();
     },
     onSuccess: (data) => {
       setGeneratedShare(data);
