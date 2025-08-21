@@ -75,7 +75,7 @@ export default function PhotoStackModal({ isOpen, onClose }: PhotoStackModalProp
         <motion.div
           ref={modalRef}
           onClick={handleBackdropClick}
-          className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -90,7 +90,7 @@ export default function PhotoStackModal({ isOpen, onClose }: PhotoStackModalProp
             transition={{ duration: 0.3 }}
           >
             {/* Modal Header */}
-            <div className="absolute top-0 left-0 right-0 z-30 bg-black/50 backdrop-blur-sm rounded-t-2xl p-6">
+            <div className="absolute top-0 left-0 right-0 z-30 bg-black/40 rounded-t-2xl p-6">
               <div className="flex justify-between items-center">
                 <div className="text-white">
                   <h3 className="text-2xl font-fredoka">Your Photo Stack</h3>
@@ -107,7 +107,7 @@ export default function PhotoStackModal({ isOpen, onClose }: PhotoStackModalProp
             </div>
             
             {/* Photo Stack Container */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 pt-24 min-h-[500px] relative overflow-hidden">
+            <div className="bg-black/20 rounded-2xl p-8 pt-24 min-h-[500px] relative overflow-hidden">
               {photos.length === 0 ? (
                 <div className="text-center text-white/80 py-20">
                   <p className="text-xl">No photos uploaded yet</p>

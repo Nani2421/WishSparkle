@@ -5,6 +5,7 @@ interface Trail {
   y: number;
   life: number;
   color: string;
+  size: number;
 }
 
 export default function CursorTrail() {
@@ -25,27 +26,44 @@ export default function CursorTrail() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      trailsRef.current.push({
-        x: e.clientX,
-        y: e.clientY,
-        life: 1,
-        color: `hsl(${Date.now() * 0.1 % 360}, 70%, 60%)`
-      });
+      // Create multiple trail particles for smooth comet effect
+      for (let i = 0; i < 3; i++) {
+        trailsRef.current.push({
+          x: e.clientX + (Math.random() - 0.5) * 2,
+          y: e.clientY + (Math.random() - 0.5) * 2,
+          life: 1,
+          color: `hsl(${(Date.now() * 0.1 + i * 30) % 360}, 80%, 65%)`,
+          size: Math.random() * 4 + 2
+        });
+      }
     };
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Create trailing effect by not clearing completely
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.globalCompositeOperation = 'lighter';
 
       for (let i = trailsRef.current.length - 1; i >= 0; i--) {
         const trail = trailsRef.current[i];
 
-        ctx.globalAlpha = trail.life;
-        ctx.fillStyle = trail.color;
+        // Create gradient for comet tail effect
+        const gradient = ctx.createRadialGradient(
+          trail.x, trail.y, 0,
+          trail.x, trail.y, trail.size * trail.life
+        );
+        gradient.addColorStop(0, trail.color.replace(')', `, ${trail.life})`).replace('hsl', 'hsla'));
+        gradient.addColorStop(0.5, trail.color.replace(')', `, ${trail.life * 0.5})`).replace('hsl', 'hsla'));
+        gradient.addColorStop(1, trail.color.replace(')', ', 0)').replace('hsl', 'hsla'));
+
+        ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(trail.x, trail.y, 3 * trail.life, 0, Math.PI * 2);
+        ctx.arc(trail.x, trail.y, trail.size * trail.life, 0, Math.PI * 2);
         ctx.fill();
 
-        trail.life -= 0.05;
+        trail.life -= 0.02; // Slower fade for longer tail
 
         if (trail.life <= 0) {
           trailsRef.current.splice(i, 1);
