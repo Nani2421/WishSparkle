@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
+import "./types"; // Import session types
 import { storage } from "./storage";
 import { insertWishSchema, insertPhotoSchema, insertSharedLinkSchema } from "@shared/schema";
 import multer from "multer";
@@ -93,6 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
+      const sessionId = req.session.id;
       const uploadedPhotos = [];
       
       for (const file of req.files) {
@@ -100,7 +102,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           filename: file.filename,
           originalName: file.originalname,
           mimeType: file.mimetype,
-          size: file.size.toString()
+          size: file.size.toString(),
+          sessionId: sessionId
         };
 
         const photo = await storage.createPhoto(photoData);
@@ -112,20 +115,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(uploadedPhotos);
     } catch (error) {
+      console.error('Photo upload error:', error);
       res.status(500).json({ message: "Failed to upload photos" });
     }
   });
 
-  // Get all photos
+  // Get photos for current session
   app.get("/api/photos", async (req, res) => {
     try {
-      const photos = await storage.getAllPhotos();
+      const sessionId = req.session.id;
+      const photos = await storage.getPhotosBySession(sessionId);
       const photosWithUrls = photos.map(photo => ({
         ...photo,
         url: `/uploads/${photo.filename}`
       }));
       res.json(photosWithUrls);
     } catch (error) {
+      console.error('Photo fetch error:', error);
       res.status(500).json({ message: "Failed to fetch photos" });
     }
   });
@@ -183,6 +189,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         shareToken,
         generatedMessage
       });
+
+      // Clear session photos after creating shared link for privacy
+      const sessionId = req.session.id;
+      await storage.clearSessionPhotos(sessionId);
       
       res.json({
         ...sharedLink,
@@ -218,6 +228,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Shared link fetch error:', error);
       res.status(500).json({ message: "Failed to fetch shared link" });
+    }
+  });
+
+  // Clear session photos endpoint (for privacy)
+  app.delete("/api/photos/session", async (req, res) => {
+    try {
+      const sessionId = req.session.id;
+      await storage.clearSessionPhotos(sessionId);
+      res.json({ message: "Session photos cleared successfully" });
+    } catch (error) {
+      console.error('Clear session photos error:', error);
+      res.status(500).json({ message: "Failed to clear session photos" });
     }
   });
 

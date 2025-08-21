@@ -8,8 +8,10 @@ export interface IStorage {
   getAllWishes(): Promise<Wish[]>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
   getAllPhotos(): Promise<Photo[]>;
+  getPhotosBySession(sessionId: string): Promise<Photo[]>;
   getPhotosByIds(ids: string[]): Promise<Photo[]>;
   deletePhoto(id: string): Promise<boolean>;
+  clearSessionPhotos(sessionId: string): Promise<boolean>;
   createSharedLink(link: InsertSharedLink & { shareToken: string; generatedMessage: string }): Promise<SharedLink>;
   getSharedLink(shareToken: string): Promise<SharedLink | undefined>;
 }
@@ -39,6 +41,10 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(photos).orderBy(photos.uploadedAt);
   }
 
+  async getPhotosBySession(sessionId: string): Promise<Photo[]> {
+    return await db.select().from(photos).where(eq(photos.sessionId, sessionId)).orderBy(photos.uploadedAt);
+  }
+
   async getPhotosByIds(ids: string[]): Promise<Photo[]> {
     if (ids.length === 0) return [];
     return await db.select().from(photos).where(inArray(photos.id, ids));
@@ -47,6 +53,11 @@ export class DatabaseStorage implements IStorage {
   async deletePhoto(id: string): Promise<boolean> {
     const result = await db.delete(photos).where(eq(photos.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async clearSessionPhotos(sessionId: string): Promise<boolean> {
+    const result = await db.delete(photos).where(eq(photos.sessionId, sessionId));
+    return (result.rowCount ?? 0) >= 0; // Return true even if 0 photos were deleted
   }
 
   async createSharedLink(link: InsertSharedLink & { shareToken: string; generatedMessage: string }): Promise<SharedLink> {

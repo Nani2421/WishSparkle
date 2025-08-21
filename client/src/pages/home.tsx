@@ -23,6 +23,29 @@ export default function Home() {
   const [copiedLink, setCopiedLink] = useState(false);
   const { toast } = useToast();
 
+  // Clear photos mutation for privacy
+  const clearPhotosMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('DELETE', '/api/photos/session');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/photos'] });
+      toast({
+        title: "Photos cleared",
+        description: "All photos have been removed for privacy.",
+      });
+    },
+    onError: (error) => {
+      console.error('Clear photos error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear photos.",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Fetch photos for shared link generation
   const { data: photos = [] } = useQuery<Photo[]>({ 
     queryKey: ['/api/photos'] 
@@ -36,9 +59,11 @@ export default function Home() {
     },
     onSuccess: (data) => {
       setGeneratedShare(data);
+      // Invalidate photos cache since they're cleared on the backend for privacy
+      queryClient.invalidateQueries({ queryKey: ['/api/photos'] });
       toast({
         title: "Shared link created!",
-        description: "Your festive wishes are ready to share.",
+        description: "Your festive wishes are ready to share. Photos have been saved to your link for privacy.",
       });
     },
     onError: (error) => {

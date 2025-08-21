@@ -16,6 +16,7 @@ export const photos = pgTable("photos", {
   originalName: text("original_name").notNull(),
   mimeType: text("mime_type").notNull(),
   size: text("size").notNull(),
+  sessionId: text("session_id"), // Optional session ID for privacy
   uploadedAt: timestamp("uploaded_at").defaultNow()
 });
 
@@ -39,6 +40,7 @@ export const insertPhotoSchema = createInsertSchema(photos).pick({
   originalName: true,
   mimeType: true,
   size: true,
+  sessionId: true,
 });
 
 export const insertSharedLinkSchema = createInsertSchema(sharedLinks).pick({
