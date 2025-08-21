@@ -9,7 +9,7 @@ export default function Home() {
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-transparent relative overflow-x-hidden">
+    <div className="min-h-screen glass-bg relative overflow-x-hidden">
       <CursorTrail />
       
       {/* Main Content */}

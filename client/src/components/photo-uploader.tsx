@@ -140,7 +140,7 @@ export default function PhotoUploader({ onOpenModal }: PhotoUploaderProps) {
 
   return (
     <section className="max-w-4xl mx-auto px-4 mb-12">
-      <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/30">
+      <div className="glass-card rounded-2xl shadow-xl p-8 border border-white/20">
         <div className="text-center mb-8">
           <Images className="w-16 h-16 text-green-500 mb-4 animate-bounce-gentle mx-auto" />
           <h2 className="text-2xl md:text-3xl font-fredoka text-gray-800 mb-4">
