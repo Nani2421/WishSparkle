@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a full-stack React application that allows users to generate personalized festive wishes and upload photos to create a memory stack. The app features an interactive UI with cursor trails, drag-and-drop photo management, and a wish generator that creates magical personalized messages based on user input.
+This is a full-stack React application that allows users to generate personalized festive wishes, upload photos to create memory stacks, and create shareable links with draggable photo arrangements on beautiful night sky backgrounds. The app features an interactive UI with rainbow cursor trails, liquid glass effects, and a comprehensive sharing system for sending magical wishes to friends and family.
 
 ## User Preferences
 

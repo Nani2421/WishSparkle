@@ -22,7 +22,8 @@ export const photos = pgTable("photos", {
 export const sharedLinks = pgTable("shared_links", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   shareToken: varchar("share_token").notNull().unique(),
-  name: text("name").notNull(),
+  recipientName: text("recipient_name").notNull(),
+  senderName: text("sender_name").notNull(),
   customMessage: text("custom_message"),
   generatedMessage: text("generated_message").notNull(),
   photoIds: text("photo_ids").array().notNull().default(sql`ARRAY[]::text[]`),
@@ -41,7 +42,8 @@ export const insertPhotoSchema = createInsertSchema(photos).pick({
 });
 
 export const insertSharedLinkSchema = createInsertSchema(sharedLinks).pick({
-  name: true,
+  recipientName: true,
+  senderName: true,
   customMessage: true,
   photoIds: true,
 }).extend({

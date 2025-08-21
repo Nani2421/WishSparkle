@@ -155,7 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid request data", error: validation.error });
       }
       
-      const { name, customMessage, photoIds } = validation.data;
+      const { recipientName, senderName, customMessage, photoIds } = validation.data;
       
       // Generate wish message
       const wishTemplates = [
@@ -170,13 +170,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ];
       
       const randomTemplate = wishTemplates[Math.floor(Math.random() * wishTemplates.length)];
-      const generatedMessage = randomTemplate.replace('{name}', name);
+      const generatedMessage = randomTemplate.replace('{name}', recipientName);
       
       // Generate unique share token
       const shareToken = randomUUID();
       
       const sharedLink = await storage.createSharedLink({
-        name,
+        recipientName,
+        senderName,
         customMessage: customMessage || '',
         photoIds: photoIds || [],
         shareToken,

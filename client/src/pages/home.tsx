@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import CursorTrail from "@/components/cursor-trail";
 import WishGenerator from "@/components/wish-generator";
 import PhotoUploader from "@/components/photo-uploader";
@@ -16,7 +16,8 @@ import type { Photo } from "@shared/schema";
 
 export default function Home() {
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
-  const [userName, setUserName] = useState("");
+  const [recipientName, setRecipientName] = useState("");
+  const [senderName, setSenderName] = useState("");
   const [customMessage, setCustomMessage] = useState("");
   const [generatedShare, setGeneratedShare] = useState<any>(null);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -29,7 +30,7 @@ export default function Home() {
 
   // Create shared link mutation
   const createShareMutation = useMutation({
-    mutationFn: async (data: { name: string; customMessage?: string; photoIds: string[] }) => {
+    mutationFn: async (data: { recipientName: string; senderName: string; customMessage?: string; photoIds: string[] }) => {
       const response = await apiRequest('POST', '/api/shared-links', data);
       return response.json();
     },
@@ -51,10 +52,10 @@ export default function Home() {
   });
 
   const handleCreateShare = () => {
-    if (!userName.trim()) {
+    if (!recipientName.trim() || !senderName.trim()) {
       toast({
-        title: "Name required",
-        description: "Please enter your name to create a shared link.",
+        title: "Names required",
+        description: "Please enter both recipient and sender names to create a shared link.",
         variant: "destructive",
       });
       return;
@@ -63,7 +64,8 @@ export default function Home() {
     const photoIds = photos.map(photo => photo.id);
     
     createShareMutation.mutate({
-      name: userName.trim(),
+      recipientName: recipientName.trim(),
+      senderName: senderName.trim(),
       customMessage: customMessage.trim() || undefined,
       photoIds
     });
@@ -124,13 +126,25 @@ export default function Home() {
               
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="username" className="text-gray-700">Your Name</Label>
+                  <Label htmlFor="recipient-name" className="text-gray-700">Recipient's Name</Label>
                   <Input
-                    id="username"
-                    data-testid="input-username"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    placeholder="Enter your name..."
+                    id="recipient-name"
+                    data-testid="input-recipient-name"
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="Who is receiving these wishes?"
+                    className="mt-2"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="sender-name" className="text-gray-700">Your Name (From)</Label>
+                  <Input
+                    id="sender-name"
+                    data-testid="input-sender-name"
+                    value={senderName}
+                    onChange={(e) => setSenderName(e.target.value)}
+                    placeholder="Your name will appear as sender..."
                     className="mt-2"
                   />
                 </div>
@@ -149,7 +163,7 @@ export default function Home() {
                 
                 <Button
                   onClick={handleCreateShare}
-                  disabled={createShareMutation.isPending || !userName.trim()}
+                  disabled={createShareMutation.isPending || !recipientName.trim() || !senderName.trim()}
                   data-testid="button-create-share"
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
                 >

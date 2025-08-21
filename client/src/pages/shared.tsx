@@ -65,11 +65,11 @@ function DraggablePhoto({ photo, index }: DraggablePhotoProps) {
       onMouseDown={handleMouseDown}
       data-testid={`draggable-photo-${index}`}
     >
-      <div className="glass-card p-2 bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl">
+      <div className="glass-card p-2 bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl">
         <img
           src={photo.url}
           alt={photo.originalName}
-          className="w-48 h-48 object-cover rounded-lg"
+          className="w-48 h-48 object-cover rounded-xl"
           draggable={false}
         />
         <div className="mt-2 text-center">
@@ -162,7 +162,7 @@ export default function SharedPage() {
                 {sharedData.customMessage}
               </p>
               <p className="text-white/60 text-center text-sm mt-3">
-                - {sharedData.name}
+                - {sharedData.senderName}
               </p>
             </CardContent>
           </Card>
@@ -183,7 +183,7 @@ export default function SharedPage() {
               <div className="flex items-center justify-center gap-2">
                 <Star className="w-4 h-4 text-yellow-400" />
                 <p className="text-white/80 text-sm">
-                  Shared with love by {sharedData.name}
+                  Shared with love by {sharedData.senderName}
                 </p>
                 <Star className="w-4 h-4 text-yellow-400" />
               </div>
