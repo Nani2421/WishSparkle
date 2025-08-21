@@ -19,6 +19,16 @@ export const photos = pgTable("photos", {
   uploadedAt: timestamp("uploaded_at").defaultNow()
 });
 
+export const sharedLinks = pgTable("shared_links", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  shareToken: varchar("share_token").notNull().unique(),
+  name: text("name").notNull(),
+  customMessage: text("custom_message"),
+  generatedMessage: text("generated_message").notNull(),
+  photoIds: text("photo_ids").array().notNull().default(sql`ARRAY[]::text[]`),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
 export const insertWishSchema = createInsertSchema(wishes).pick({
   name: true,
 });
@@ -30,7 +40,17 @@ export const insertPhotoSchema = createInsertSchema(photos).pick({
   size: true,
 });
 
+export const insertSharedLinkSchema = createInsertSchema(sharedLinks).pick({
+  name: true,
+  customMessage: true,
+  photoIds: true,
+}).extend({
+  customMessage: z.string().optional(),
+});
+
 export type InsertWish = z.infer<typeof insertWishSchema>;
 export type Wish = typeof wishes.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
 export type Photo = typeof photos.$inferSelect;
+export type InsertSharedLink = z.infer<typeof insertSharedLinkSchema>;
+export type SharedLink = typeof sharedLinks.$inferSelect;

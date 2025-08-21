@@ -1,60 +1,69 @@
-import { type Wish, type InsertWish, type Photo, type InsertPhoto } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { type Wish, type InsertWish, type Photo, type InsertPhoto, type SharedLink, type InsertSharedLink } from "@shared/schema";
+import { db } from "./db";
+import { eq, inArray } from "drizzle-orm";
+import { photos, wishes, sharedLinks } from "@shared/schema";
 
 export interface IStorage {
   createWish(wish: { name: string; message: string }): Promise<Wish>;
   getAllWishes(): Promise<Wish[]>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
   getAllPhotos(): Promise<Photo[]>;
+  getPhotosByIds(ids: string[]): Promise<Photo[]>;
   deletePhoto(id: string): Promise<boolean>;
+  createSharedLink(link: InsertSharedLink & { shareToken: string; generatedMessage: string }): Promise<SharedLink>;
+  getSharedLink(shareToken: string): Promise<SharedLink | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private wishes: Map<string, Wish>;
-  private photos: Map<string, Photo>;
-
-  constructor() {
-    this.wishes = new Map();
-    this.photos = new Map();
-  }
-
+export class DatabaseStorage implements IStorage {
   async createWish(insertWish: { name: string; message: string }): Promise<Wish> {
-    const id = randomUUID();
-    const wish: Wish = { 
-      ...insertWish, 
-      id,
-      createdAt: new Date()
-    };
-    this.wishes.set(id, wish);
+    const [wish] = await db
+      .insert(wishes)
+      .values(insertWish)
+      .returning();
     return wish;
   }
 
   async getAllWishes(): Promise<Wish[]> {
-    return Array.from(this.wishes.values()).sort(
-      (a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()
-    );
+    return await db.select().from(wishes).orderBy(wishes.createdAt);
   }
 
   async createPhoto(insertPhoto: InsertPhoto): Promise<Photo> {
-    const id = randomUUID();
-    const photo: Photo = {
-      ...insertPhoto,
-      id,
-      uploadedAt: new Date()
-    };
-    this.photos.set(id, photo);
+    const [photo] = await db
+      .insert(photos)
+      .values(insertPhoto)
+      .returning();
     return photo;
   }
 
   async getAllPhotos(): Promise<Photo[]> {
-    return Array.from(this.photos.values()).sort(
-      (a, b) => b.uploadedAt!.getTime() - a.uploadedAt!.getTime()
-    );
+    return await db.select().from(photos).orderBy(photos.uploadedAt);
+  }
+
+  async getPhotosByIds(ids: string[]): Promise<Photo[]> {
+    if (ids.length === 0) return [];
+    return await db.select().from(photos).where(inArray(photos.id, ids));
   }
 
   async deletePhoto(id: string): Promise<boolean> {
-    return this.photos.delete(id);
+    const result = await db.delete(photos).where(eq(photos.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async createSharedLink(link: InsertSharedLink & { shareToken: string; generatedMessage: string }): Promise<SharedLink> {
+    const [sharedLink] = await db
+      .insert(sharedLinks)
+      .values(link)
+      .returning();
+    return sharedLink;
+  }
+
+  async getSharedLink(shareToken: string): Promise<SharedLink | undefined> {
+    const [sharedLink] = await db
+      .select()
+      .from(sharedLinks)
+      .where(eq(sharedLinks.shareToken, shareToken));
+    return sharedLink || undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
