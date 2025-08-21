@@ -2,7 +2,7 @@ import { type Wish, type InsertWish, type Photo, type InsertPhoto } from "@share
 import { randomUUID } from "crypto";
 
 export interface IStorage {
-  createWish(wish: InsertWish): Promise<Wish>;
+  createWish(wish: { name: string; message: string }): Promise<Wish>;
   getAllWishes(): Promise<Wish[]>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
   getAllPhotos(): Promise<Photo[]>;
@@ -18,7 +18,7 @@ export class MemStorage implements IStorage {
     this.photos = new Map();
   }
 
-  async createWish(insertWish: InsertWish): Promise<Wish> {
+  async createWish(insertWish: { name: string; message: string }): Promise<Wish> {
     const id = randomUUID();
     const wish: Wish = { 
       ...insertWish, 

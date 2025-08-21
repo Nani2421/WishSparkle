@@ -21,7 +21,6 @@ export const photos = pgTable("photos", {
 
 export const insertWishSchema = createInsertSchema(wishes).pick({
   name: true,
-  message: true,
 });
 
 export const insertPhotoSchema = createInsertSchema(photos).pick({

@@ -43,7 +43,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate wish endpoint
   app.post("/api/wishes", async (req, res) => {
     try {
-      const { name } = insertWishSchema.parse(req.body);
+      console.log('Request body:', req.body);
+      const validation = insertWishSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        console.log('Validation error:', validation.error);
+        return res.status(400).json({ message: "Invalid request data", error: validation.error });
+      }
+      
+      const { name } = validation.data;
       
       const wishTemplates = [
         "May your days be filled with joy and your heart with endless happiness, {name}! ✨",
@@ -62,7 +70,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const wish = await storage.createWish({ name, message });
       res.json(wish);
     } catch (error) {
-      res.status(400).json({ message: "Invalid request data" });
+      console.error('Wish creation error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Failed to create wish", error: errorMessage });
     }
   });
 

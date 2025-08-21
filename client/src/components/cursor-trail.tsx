@@ -26,14 +26,23 @@ export default function CursorTrail() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Create multiple trail particles for smooth comet effect
-      for (let i = 0; i < 3; i++) {
+      // Create multiple trail particles for bulky comet effect with random colors
+      for (let i = 0; i < 8; i++) {
+        const colors = [
+          `hsl(${Math.random() * 60}, 90%, 70%)`, // Reds to yellows
+          `hsl(${120 + Math.random() * 60}, 90%, 70%)`, // Greens to cyans
+          `hsl(${240 + Math.random() * 60}, 90%, 70%)`, // Blues to magentas
+          `hsl(${300 + Math.random() * 60}, 90%, 70%)`, // Magentas to reds
+          `hsl(${60 + Math.random() * 60}, 90%, 70%)`, // Yellows to greens
+          `hsl(${180 + Math.random() * 60}, 90%, 70%)` // Cyans to blues
+        ];
+        
         trailsRef.current.push({
-          x: e.clientX + (Math.random() - 0.5) * 2,
-          y: e.clientY + (Math.random() - 0.5) * 2,
+          x: e.clientX + (Math.random() - 0.5) * 8,
+          y: e.clientY + (Math.random() - 0.5) * 8,
           life: 1,
-          color: `hsl(${(Date.now() * 0.1 + i * 30) % 360}, 80%, 65%)`,
-          size: Math.random() * 4 + 2
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 8 + 4
         });
       }
     };
