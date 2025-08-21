@@ -48,12 +48,10 @@ export default function CursorTrail() {
     };
 
     const animate = () => {
-      // Create trailing effect by not clearing completely
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Clear canvas completely for transparent background
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalCompositeOperation = 'source-over';
 
       for (let i = trailsRef.current.length - 1; i >= 0; i--) {
         const trail = trailsRef.current[i];
