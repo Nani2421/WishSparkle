@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Wand2, User } from "lucide-react";
+import { Wand2, User, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,7 @@ export default function WishGenerator() {
   const [name, setName] = useState("");
   const [generatedWish, setGeneratedWish] = useState<Wish | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [copiedWish, setCopiedWish] = useState(false);
   const { toast } = useToast();
 
   const generateWishMutation = useMutation({
@@ -63,6 +64,26 @@ export default function WishGenerator() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleGenerateWish();
+    }
+  };
+
+  const handleCopyWish = async () => {
+    if (!generatedWish) return;
+    
+    try {
+      await navigator.clipboard.writeText(generatedWish.message);
+      setCopiedWish(true);
+      toast({
+        title: "Wish copied!",
+        description: "The magical wish has been copied to your clipboard.",
+      });
+      setTimeout(() => setCopiedWish(false), 3000);
+    } catch (error) {
+      toast({
+        title: "Failed to copy",
+        description: "Please copy the wish manually.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -118,12 +139,25 @@ export default function WishGenerator() {
                   </p>
                   <div className="mt-4 flex justify-between items-center">
                     <span className="text-sm text-purple-600 font-medium">✨ Specially crafted for you!</span>
-                    <button 
-                      className="text-purple-500 hover:text-purple-700 transition-colors"
-                      data-testid="button-share-wish"
+                    <Button
+                      onClick={handleCopyWish}
+                      size="sm"
+                      variant="outline"
+                      className="bg-white/80 hover:bg-purple-50 border-purple-200 text-purple-600 hover:text-purple-700"
+                      data-testid="button-copy-wish"
                     >
-                      <i className="fas fa-share-alt"></i>
-                    </button>
+                      {copiedWish ? (
+                        <>
+                          <Check className="w-4 h-4 mr-1" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 mr-1" />
+                          Copy Wish
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
               </div>
